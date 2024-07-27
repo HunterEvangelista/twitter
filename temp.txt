@@ -1,0 +1,3 @@
+hunterjevangelista
+6Wp2Ov29pxhAzZOf
+mongodb+srv://hunterjevangelista:6Wp2Ov29pxhAzZOf@cs340.hxr3vun.mongodb.net/?retryWrites=true&w=majority&appName=cs340

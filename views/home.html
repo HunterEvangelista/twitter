@@ -1,3 +1,5 @@
 {{ block "home" .}}
-<div id="content">{{ range . }} {{ template "tweets" . }} {{ end }}</div>
+<div id="home">
+    {{ template "header" .}} {{ range . }} {{ template "tweets" . }} {{ end }}
+</div>
 {{ end }}
