@@ -101,6 +101,17 @@ func main() {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})
 	// new route to post new tweet and see it at the top of the feed
+	e.POST("/new-post", func(c echo.Context) error {
+		author := "User"
+		content := c.FormValue("tweet")
+		likes := []string{}
+		favorites := []string{}
+		interestings := []string{}
+		postDate := time.Now()
+		newTweet := NewTweet(author, content, likes, favorites, interestings, postDate)
+		data = append(Tweets{newTweet}, data...)
+		return c.Render(http.StatusOK, "home", data)
+	})
 
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
