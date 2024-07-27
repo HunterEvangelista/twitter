@@ -96,6 +96,11 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index", data)
 	})
+	// new route to get new tweet form
+	e.GET("/new-post", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "new-post", nil)
+	})
+	// new route to post new tweet and see it at the top of the feed
 
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
