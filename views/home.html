@@ -1,6 +1,3 @@
 {{ block "home" .}}
-<div id="content">
-    <!-- range over posts to load into the home feed. -->
-    <p>Hello</p>
-</div>
+<div id="content">{{ range . }} {{ template "tweets" . }} {{ end }}</div>
 {{ end }}

@@ -1,0 +1,29 @@
+{{ block "tweets" . }}
+<!-- will need to be an id eventually -->
+<div id="tweet-{{ .Author }}" class="tweet">
+    <div class="tweet-header">
+        <div class="tweet-author">
+            <!-- can use this to link to profiles once it set up -->
+            <!-- <a href="/profile/{{ .Author }}">{{ .Author }}</a> -->
+            <span>{{ .Author }}</span>
+        </div>
+        <div class="tweet-date">
+            <span>{{ .PostDate }}</span>
+        </div>
+    </div>
+    <div class="tweet-content">
+        <p>{{ .Content }}</p>
+    </div>
+    <div class="tweet-footer">
+        <div class="interactions">
+            <img src="/assets/thumbs-up.svg" alt="Like" />
+            <img src="/assets/interesting.svg" alt="Interesting" />
+            <img src="/assets/favorite.svg" alt="Favorite" />
+        </div>
+        <div class="delete">
+            <!-- add delete route here -->
+            <img src="/assets/favorite.svg" alt="Delete" />
+        </div>
+    </div>
+</div>
+{{ end }}
