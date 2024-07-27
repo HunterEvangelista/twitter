@@ -4,11 +4,11 @@
     <div class="tweet-header">
         <div class="tweet-author">
             <!-- can use this to link to profiles once it set up -->
-            <!-- <a href="/profile/{{ .Author }}">{{ .Author }}</a> -->
+            <!-- <a href="/profile/ .Author">.Author </a> -->
             <span>{{ .Author }}</span>
         </div>
         <div class="tweet-date">
-            <span>{{ .PostDate }}</span>
+            <span>{{ .GetDate }}</span>
         </div>
     </div>
     <div class="tweet-content">

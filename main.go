@@ -12,7 +12,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// tmeplate info
 type Templates struct {
 	templates *template.Template
 }
@@ -35,6 +34,10 @@ type Tweet struct {
 	Favorites    []string
 	Interestings []string
 	PostDate     time.Time
+}
+
+func (t *Tweet) GetDate() string {
+	return t.PostDate.Format("January 2, 2006")
 }
 
 func NewTweet(author, content string, likes, favorites, interestings []string, PostDate time.Time) *Tweet {
@@ -75,7 +78,7 @@ func main() {
 				"I love Lady Gaga. I think she's a really interesting artist.",
 			[]string{},
 			[]string{},
-			[]string{"Joe Biden", "Donald Trump", "Greta Thurnberg"},
+			[]string{"Joe Biden", "Donald Trump", "Greta Thunberg"},
 			time.Date(2011, time.February, 1, 0, 0, 0, 0, time.UTC),
 		),
 		NewTweet(
