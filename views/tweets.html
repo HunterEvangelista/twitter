@@ -1,6 +1,6 @@
 {{ block "tweets" . }}
 <!-- will need to be an id eventually -->
-<div id="tweet-{{ .Author }}" class="tweet">
+<div id="tweet-{{ .Id }}" class="tweet">
     <div class="tweet-header">
         <div class="tweet-author">
             <!-- can use this to link to profiles once it set up -->
@@ -22,7 +22,12 @@
         </div>
         <div class="delete">
             <!-- add delete route here -->
-            <img src="/assets/delete.svg" alt="Delete" />
+            <img src="/assets/delete.svg"
+                 alt="Delete"
+                 hx-delete="/delete/{{ .Id }}"
+                 hx-swap="delete"
+                 hx-target="#tweet-{{ .Id }}"
+            />
         </div>
     </div>
 </div>

@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +29,7 @@ func NewTemplate() *Templates {
 
 type Tweet struct {
 	// will need to add id for author
+	Id           int
 	Author       string
 	Content      string
 	Likes        []string
@@ -40,8 +42,13 @@ func (t *Tweet) GetDate() string {
 	return t.PostDate.Format("January 2, 2006")
 }
 
+// temporary id for tweets
+var id = 0
+
 func NewTweet(author, content string, likes, favorites, interestings []string, PostDate time.Time) *Tweet {
+	id++
 	return &Tweet{
+		Id:           id,
 		Author:       author,
 		Content:      content,
 		Likes:        likes,
@@ -52,6 +59,19 @@ func NewTweet(author, content string, likes, favorites, interestings []string, P
 }
 
 type Tweets []*Tweet
+
+func (t *Tweets) DeleteTweet(id int) error {
+	for i, tweet := range *t {
+		log.Println("Tweet id: ", tweet.Id)
+		log.Println("Selected id: ", id)
+		if tweet.Id == id {
+			log.Println("Tweet found")
+			*t = append((*t)[:i], (*t)[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New("tweet not found")
+}
 
 func main() {
 	// will need to add env info
@@ -111,6 +131,16 @@ func main() {
 		newTweet := NewTweet(author, content, likes, favorites, interestings, postDate)
 		data = append(Tweets{newTweet}, data...)
 		return c.Render(http.StatusOK, "home", data)
+	})
+
+	e.DELETE("/delete/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		err = data.DeleteTweet(id)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		log.Println("End work")
+		return c.NoContent(200)
 	})
 
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
