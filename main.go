@@ -9,6 +9,7 @@ import (
 	"log"
 	"main/db"
 	"net/http"
+	"time"
 )
 
 type Templates struct {
@@ -25,37 +26,33 @@ func NewTemplate() *Templates {
 	}
 }
 
-/*type Tweet struct {
-	// will need to add id for author
-	Id           int
-	Author       string
-	Content      string
-	Likes        []string
-	Favorites    []string
-	Interestings []string
-	PostDate     time.Time
-}
+//type Tweet struct {
+//	// will need to add id for author
+//	Id           int
+//	Author       string
+//	Content      string
+//	Likes        []string
+//	Favorites    []string
+//	Interestings []string
+//	PostDate     time.Time
+//}
+//
+//func (t *Tweet) GetDate() string {
+//	return t.PostDate.Format("January 2, 2006")
+//}
 
-func (t *Tweet) GetDate() string {
-	return t.PostDate.Format("January 2, 2006")
-}
-
-// temporary id for tweets
-var id = 0
-
-func NewTweet(author, content string, likes, favorites, interestings []string, PostDate time.Time) *Tweet {
-	id++
-	return &Tweet{
-		Id:           id,
+func NewTweet(author, content string) *db.Tweet {
+	return &db.Tweet{
+		Id:           0,
 		Author:       author,
 		Content:      content,
-		Likes:        likes,
-		Favorites:    favorites,
-		Interestings: interestings,
-		PostDate:     PostDate,
+		Likes:        0,
+		Favorites:    0,
+		Interestings: 0,
+		PostDate:     time.Now(),
 	}
 }
-*/
+
 //type Tweets []*Tweet
 //
 //func (t *Tweets) DeleteTweet(id int) error {
@@ -115,30 +112,36 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var twts db.Tweets
+
 	e.GET("/", func(c echo.Context) error {
-		twts, err := DB.GetTweets()
+		var err error
+		twts, err = DB.GetTweets()
 		log.Println("Tweets: ", twts)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 		return c.Render(http.StatusOK, "index", twts)
 	})
-	// new route to get new tweet form
-	//e.GET("/new-post", func(c echo.Context) error {
-	//	return c.Render(http.StatusOK, "new-post", nil)
-	//})
-	//// new route to post new tweet and see it at the top of the feed
-	//e.POST("/new-post", func(c echo.Context) error {
-	//	author := "User"
-	//	content := c.FormValue("tweet")
-	//	likes := []string{}
-	//	favorites := []string{}
-	//	interestings := []string{}
-	//	postDate := time.Now()
-	//	newTweet := NewTweet(author, content, likes, favorites, interestings, postDate)
-	//	data = append(Tweets{newTweet}, data...)
-	//	return c.Render(http.StatusOK, "home", data)
-	//})
+
+	e.GET("/new-post", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "new-post", nil)
+	})
+	// new route to post new tweet and see it at the top of the feed
+	e.POST("/new-post", func(c echo.Context) error {
+		author := "Default User"
+		content := c.FormValue("tweet")
+		twt := NewTweet(author, content)
+		err := DB.CreateTweet(twt)
+		log.Println("twt: ", twt)
+		log.Println()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		log.Println("twts: ", twts)
+		twts = append(db.Tweets{twt}, twts...)
+		return c.Render(http.StatusOK, "home", twts)
+	})
 	//
 	//e.DELETE("/delete/:id", func(c echo.Context) error {
 	//	id, err := strconv.Atoi(c.Param("id"))

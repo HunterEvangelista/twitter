@@ -87,11 +87,19 @@ INSERT INTO Users (Name, Email, Password, CreatedDate) VALUES
    '2022-10-28 00:00:00.00'
 ),
 (
+ 'Default User',
+ 'dev@test.com',
+ 'password',
+ '2024-01-01 00:00:00.00'
+),
+(
    'LeBron James',
    'goat@notmj.com',
    'king',
    '2020-01-01 00:00:00.00'
 );
+
+
 
 INSERT INTO Tweets (UserId, Content, PostDate) VALUES
 (
@@ -192,6 +200,4 @@ SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
 
 
-SELECT T.ID, T.Content, T.PostDate, U.Name
-FROM Tweets T
-         INNER JOIN Users U ON T.UserId = U.Id
+select * from tweets;
