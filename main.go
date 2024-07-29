@@ -9,6 +9,7 @@ import (
 	"log"
 	"main/db"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -133,26 +134,82 @@ func main() {
 		content := c.FormValue("tweet")
 		twt := NewTweet(author, content)
 		err := DB.CreateTweet(twt)
-		log.Println("twt: ", twt)
-		log.Println()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		log.Println("twts: ", twts)
+		err = DB.QueryRow("SELECT Id FROM Tweets WHERE Content = ?", content).Scan(&twt.Id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		twts = append(db.Tweets{twt}, twts...)
 		return c.Render(http.StatusOK, "home", twts)
 	})
-	//
-	//e.DELETE("/delete/:id", func(c echo.Context) error {
-	//	id, err := strconv.Atoi(c.Param("id"))
-	//	err = data.DeleteTweet(id)
-	//	if err != nil {
-	//		return c.JSON(http.StatusNotFound, err.Error())
-	//	}
-	//	log.Println("End work")
-	//	return c.NoContent(200)
-	//})
-	//
+
+	e.DELETE("/delete/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = twts.DeleteTweet(id)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, err.Error())
+		}
+		err = DB.DeleteTweet(id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		return c.NoContent(200)
+	})
+
+	e.POST("/like/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		// get current user id
+		// just defaul user for now
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.LikeTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.NoContent(200)
+	})
+
+	e.POST("/interesting/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		// get current user id
+		// just default user for now
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.InterestingTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.NoContent(200)
+	})
+
+	e.POST("/favorite/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		// get current user id
+		// just default user for now
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.FavoriteTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return c.NoContent(200)
+	})
+
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

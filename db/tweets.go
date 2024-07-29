@@ -84,6 +84,18 @@ func (db *DB) CreateTweet(tweet *Tweet) error {
 	return nil
 }
 
+func (db *DB) DeleteTweet(id int) error {
+	query := `
+	DELETE FROM Tweets WHERE Id = ?
+	`
+	_, err := db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("error deleting tweet: %v", err)
+	}
+	return nil
+}
+
+// this should be moved to a controller eventually
 func (t *Tweets) DeleteTweet(id int) error {
 	for i, tweet := range *t {
 		log.Println("Tweet id: ", tweet.Id)
@@ -95,4 +107,40 @@ func (t *Tweets) DeleteTweet(id int) error {
 		}
 	}
 	return errors.New("tweet not found")
+}
+
+func (db *DB) LikeTweet(tweetId, userId int) error {
+	query := `
+	INSERT INTO Likes (TweetId, UserId)
+	VALUES (?, ?)
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		return fmt.Errorf("error liking tweet: %v", err)
+	}
+	return nil
+}
+
+func (db *DB) InterestingTweet(tweetId, userId int) error {
+	query := `
+	INSERT INTO Interestings (TweetId, UserId)
+	VALUES (?, ?)
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		return fmt.Errorf("error interesting tweet: %v", err)
+	}
+	return nil
+}
+
+func (db *DB) FavoriteTweet(tweetId, userId int) error {
+	query := `
+	INSERT INTO Favorites (TweetId, UserId)
+	VALUES (?, ?)
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		return fmt.Errorf("error favoriting tweet: %v", err)
+	}
+	return nil
 }

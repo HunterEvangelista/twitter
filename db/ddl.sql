@@ -199,5 +199,4 @@ INSERT INTO Follows (FollowerId, FolloweeId) VALUES
 SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
 
-
 select * from tweets;
