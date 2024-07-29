@@ -60,55 +60,55 @@ INSERT INTO Users (Name, Email, Password, CreatedDate) VALUES
    'Jack Dorsey',
    'jack_dorsey@email.com',
    'password',
-   '2021-01-01 00:00:00'
+   '2021-01-01 00:00:00.00'
 ),
 (
    'Britney Spears',
    'its_brittney@email.com',
    'password',
-   '2021-01-01 00:00:00'
+   '2021-01-01 00:00:00.00'
 ),
 (
    'Kevin Durant',
    'kd@email.com',
    'password',
-   '2021-01-01 00:00:00'
+   '2021-01-01 00:00:00.00'
 ),
 (
    'Joe Biden',
    'pres@email.com',
    'usa',
-   '2021-01-01 00:00:00'
+   '2021-01-01 00:00:00.00'
 ),
 (
    'Elon Musk',
    'elon@x.com',
    'p@ssw0rd',
-   '2022-10-28 00:00:00'
+   '2022-10-28 00:00:00.00'
 ),
 (
    'LeBron James',
    'goat@notmj.com',
    'king',
-   '2020-01-01 00:00:00'
+   '2020-01-01 00:00:00.00'
 );
 
 INSERT INTO Tweets (UserId, Content, PostDate) VALUES
 (
    (SELECT Id FROM Users WHERE Name = 'Jack Dorsey'),
    'just setting up my twttr',
-   '2011-01-01 00:00:00'
+   '2011-01-01 00:00:00.00'
 ),
 (
    (SELECT Id FROM Users WHERE Name = 'Britney Spears'),
    'Does anyone thing global warming is a good thing? I love Lady Gaga. I think she is a really interesting artist',
-   '2011-02-01 00:00:00'
+   '2011-02-01 00:00:00.00'
 ),
 (
    (SELECT Id FROM Users WHERE Name = 'Kevin Durant'),
    'I\'m watching the History channel in the club and I\'m wondering how do these people kno what\'s goin on on the sun
     ... ain\'t nobody ever been',
-   '2010-07-30 00:00:00'
+   '2010-07-30 00:00:00.00'
 );
 
 INSERT INTO Likes (UserId, TweetId) VALUES
@@ -122,7 +122,7 @@ INSERT INTO Likes (UserId, TweetId) VALUES
 ),
 (
     (SELECT Id FROM Users WHERE Name = 'LeBron James'),
-    (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00')
+    (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00.00')
 );
 
 INSERT INTO Interestings (UserId, TweetId) VALUES
@@ -135,9 +135,14 @@ INSERT INTO Interestings (UserId, TweetId) VALUES
    (SELECT Id FROM Tweets WHERE Content = 'Does anyone thing global warming is a good thing? I love Lady Gaga. I think she is a really interesting artist')
 ),
 (
-   (SELECT Id FROM Users WHERE Name = 'LeBron James'),
-   (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00')
-);
+    (SELECT Id FROM Users WHERE Name = 'LeBron James'),
+    (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00.00')
+),
+(
+    (SELECT Id FROM Users WHERE Name = 'Joe Biden'),
+    (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00.00')
+)
+;
 
 INSERT INTO Favorites (UserId, TweetId) VALUES
 (
@@ -185,3 +190,8 @@ INSERT INTO Follows (FollowerId, FolloweeId) VALUES
 
 SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
+
+
+SELECT T.ID, T.Content, T.PostDate, U.Name
+FROM Tweets T
+         INNER JOIN Users U ON T.UserId = U.Id
