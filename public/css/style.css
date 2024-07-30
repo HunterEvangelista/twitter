@@ -21,14 +21,6 @@ html, body {
     padding: 0;
 }
 
-/*body {*/
-/*    display: flex;*/
-/*    flex-direction: row;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-
-/*}*/
-
 #page {
     display: flex;
     flex-direction: column;
@@ -86,6 +78,17 @@ html, body {
 }
 
 /*home page*/
+.expanded-tweet {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 20rem;
+    width: 90%;
+    margin-top: 20px;
+    border-radius: 10px;
+    padding: 20px 20px 10px;
+}
+
 .tweet {
     display: flex;
     flex-direction: column;

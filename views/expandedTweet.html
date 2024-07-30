@@ -1,0 +1,42 @@
+{{ block "expanded-tweet" . }}
+    <div id="content">
+        <div id="tweet-{{ .Id }}"
+             class="expanded-tweet"
+             title="Double click to close"
+        >
+            <div class="tweet-header">
+                <div class="tweet-author">
+                    <!-- can use this to link to profiles once it set up -->
+                    <!-- <a href="/profile/ .Author">.Author </a> -->
+                    <span>{{ .Author }}</span>
+                </div>
+                <div class="tweet-date">
+{{/*                    <span>{{ .GetDate }}</span>*/}}
+                </div>
+            </div>
+            <div class="tweet-content">
+                <p>{{ .Content }}</p>
+            </div>
+            <div class="interactions">
+                {{ .Likes }}
+                {{ if .IsLiked }}
+                    {{ template "liked" . }}
+                {{ else }}
+                    {{ template "unliked" . }}
+                {{ end }}
+                {{ .Interestings }}
+                {{ if .IsInteresting }}
+                    {{ template "interesting" . }}
+                {{ else }}
+                    {{ template "uninteresting" . }}
+                {{ end }}
+                {{ .Favorites }}
+                {{ if .IsFavorited }}
+                    {{ template "favorited" . }}
+                {{ else }}
+                    {{ template "unfavorited" . }}
+                {{ end }}
+            </div>
+        </div>
+    </div>
+{{ end }}

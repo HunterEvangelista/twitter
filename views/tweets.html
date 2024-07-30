@@ -1,6 +1,11 @@
 {{ block "tweets" . }}
-<!-- will need to be an id eventually -->
-<div id="tweet-{{ .Id }}" class="tweet">
+<div id="tweet-{{ .Id }}"
+     class="tweet"
+     hx-get="/expand/{{ .Id }}"
+     hx-trigger="dblclick"
+     hx-target="#content"
+     title="Double click to expand"
+>
     <div class="tweet-header">
         <div class="tweet-author">
             <!-- can use this to link to profiles once it set up -->
@@ -39,6 +44,7 @@
                 hx-swap="delete"
                 hx-target="#tweet-{{ .Id }}"
                 class="delete tweet-footer-button"
+                title="Delete"
             >
             <svg xmlns="http://www.w3.org/2000/svg"
                  height="24px"
@@ -54,6 +60,7 @@
     <div class="like tweet-footer-button liked"
             hx-delete="/unlike/{{ .Id }}"
             hx-swap="outerHTML"
+            title="Unlike"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"
@@ -68,6 +75,7 @@
     <div class="like tweet-footer-button unliked"
          hx-post="/like/{{ .Id }}"
          hx-swap="outerHTML"
+         title="Like"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"
@@ -82,6 +90,7 @@
     <div class="mark-interesting tweet-footer-button interesting"
          hx-delete="/uninteresting/{{ .Id }}"
          hx-swap="outerHTML"
+         title="Unmark as interesting"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"
@@ -95,6 +104,7 @@
 <div class="mark-interesting tweet-footer-button uninteresting"
         hx-post="/interesting/{{ .Id }}"
         hx-swap="outerHTML"
+        title="Mark as interesting"
 >
     <svg xmlns="http://www.w3.org/2000/svg"
          height="24px"
@@ -108,6 +118,7 @@
     <div class="favorite tweet-footer-button favorited"
             hx-delete="/unfavorite/{{ .Id }}"
             hx-swap="outerHTML"
+            title="Unfavorite"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"
@@ -122,6 +133,7 @@
     <div class="favorite tweet-footer-button unfavorited"
             hx-post="/favorite/{{ .Id }}"
             hx-swap="outerHTML"
+             title="Favorite"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"

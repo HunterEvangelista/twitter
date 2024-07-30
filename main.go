@@ -137,6 +137,21 @@ func main() {
 		return c.Render(http.StatusOK, "home", SessionData)
 	})
 
+	e.GET("expand/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		tweet, err := DB.GetTweet(id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		log.Println("GetDate: ", tweet.GetDate())
+		return c.Render(http.StatusOK,
+			"expanded-tweet",
+			tweet)
+	})
+
 	e.DELETE("/delete/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {

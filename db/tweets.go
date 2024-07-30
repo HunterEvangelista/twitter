@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// This needs moved to handler
 type Tweet struct {
 	Id           int
 	AuthorId     int
@@ -113,18 +112,6 @@ func (t *Tweet) IsSessionUsersTweet(id, userId int) bool {
 	return false
 }
 
-//func NewTweet(id int, author, content string, likes, favorites, interestings int, PostDate time.Time) *Tweet {
-//	return &Tweet{
-//		Id:           id,
-//		Author:       author,
-//		Content:      content,
-//		Likes:        likes,
-//		Favorites:    favorites,
-//		Interestings: interestings,
-//		PostDate:     PostDate,
-//	}
-//}
-
 type Tweets []*Tweet
 
 func (t *Tweets) GetTweetById(id int) Tweet {
@@ -134,6 +121,21 @@ func (t *Tweets) GetTweetById(id int) Tweet {
 		}
 	}
 	return Tweet{}
+}
+
+func (db *DB) GetTweet(id int) (Tweet, error) {
+	query := `
+	SELECT T.ID, T.Content, T.PostDate, U.Name, T.UserId
+	FROM Tweets T
+	INNER JOIN Users U ON T.UserId = U.Id
+	WHERE T.ID = ?
+	`
+	var tweet Tweet
+	err := db.QueryRow(query, id).Scan(&tweet.Id, &tweet.Content, &tweet.PostDate, &tweet.Author, &tweet.AuthorId)
+	if err != nil {
+		return Tweet{}, fmt.Errorf("error getting tweet: %v", err)
+	}
+	return tweet, nil
 }
 
 func (db *DB) GetTweets() (Tweets, error) {
