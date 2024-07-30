@@ -95,6 +95,24 @@ func (t *Tweet) IsFavorited(id int) bool {
 	return false
 }
 
+func (t *Tweet) IsSessionUsersTweet(id, userId int) bool {
+	// this should probably be attatched to the user struct
+	db, _ := NewDB()
+
+	query := `
+	SELECT UserId FROM Tweets WHERE Id = ?
+	`
+	var tweetUserId int
+	err := db.QueryRow(query, t.Id).Scan(&tweetUserId)
+	if err != nil {
+		log.Printf("error getting tweet user id: %v", err)
+	}
+	if tweetUserId == userId {
+		return true
+	}
+	return false
+}
+
 //func NewTweet(id int, author, content string, likes, favorites, interestings int, PostDate time.Time) *Tweet {
 //	return &Tweet{
 //		Id:           id,
