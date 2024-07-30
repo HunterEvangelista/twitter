@@ -8,6 +8,7 @@ CREATE TABLE Tweets (
     Content TEXT,
     PostDate TIMESTAMP,
     FOREIGN KEY (UserId) REFERENCES Users(id)
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Users;
@@ -24,8 +25,10 @@ CREATE TABLE Likes (
     UserId BIGINT,
     TweetId BIGINT,
     PRIMARY KEY (UserId, TweetId),
-    FOREIGN KEY (UserId) REFERENCES Users(id),
+    FOREIGN KEY (UserId) REFERENCES Users(id)
+    ON DELETE CASCADE,
     FOREIGN KEY (TweetId) REFERENCES Tweets(id)
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Interestings;
@@ -33,8 +36,10 @@ CREATE TABLE Interestings (
     UserId BIGINT,
     TweetId BIGINT,
     PRIMARY KEY (UserId, TweetId),
-    FOREIGN KEY (UserId) REFERENCES Users(id),
+    FOREIGN KEY (UserId) REFERENCES Users(id)
+    ON DELETE CASCADE,
     FOREIGN KEY (TweetId) REFERENCES Tweets(id)
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Favorites;
@@ -42,8 +47,10 @@ CREATE TABLE Favorites (
     UserId BIGINT,
     TweetId BIGINT,
     PRIMARY KEY (UserId, TweetId),
-    FOREIGN KEY (UserId) REFERENCES Users(id),
+    FOREIGN KEY (UserId) REFERENCES Users(id)
+    ON DELETE CASCADE,
     FOREIGN KEY (TweetId) REFERENCES Tweets(id)
+    ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS Follows;
@@ -51,8 +58,10 @@ CREATE TABLE Follows (
      FollowerId BIGINT,
      FolloweeId BIGINT,
      PRIMARY KEY (FollowerId, FolloweeId),
-     FOREIGN KEY (FollowerId) REFERENCES Users(id),
+     FOREIGN KEY (FollowerId) REFERENCES Users(id)
+     ON DELETE CASCADE,
      FOREIGN KEY (FolloweeId) REFERENCES Users(id)
+     ON DELETE CASCADE
 );
 
 INSERT INTO Users (Name, Email, Password, CreatedDate) VALUES
@@ -129,6 +138,10 @@ INSERT INTO Likes (UserId, TweetId) VALUES
     (SELECT Id FROM Tweets WHERE Content = 'Does anyone thing global warming is a good thing? I love Lady Gaga. I think she is a really interesting artist')
 ),
 (
+    (SELECT Id FROM Users WHERE Name = 'Default User'),
+    (SELECT Id FROM Tweets WHERE Content = 'just setting up my twttr')
+),
+(
     (SELECT Id FROM Users WHERE Name = 'LeBron James'),
     (SELECT Id FROM Tweets WHERE PostDate = '2010-07-30 00:00:00.00')
 );
@@ -199,4 +212,4 @@ INSERT INTO Follows (FollowerId, FolloweeId) VALUES
 SET FOREIGN_KEY_CHECKS = 1;
 COMMIT;
 
-select * from tweets;
+select * from Likes;

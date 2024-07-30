@@ -27,6 +27,19 @@ func NewTemplate() *Templates {
 	}
 }
 
+type User struct {
+	UserId      int
+	Name        string
+	Email       string
+	Password    string
+	CreatedDate time.Time
+}
+
+type Data struct {
+	Tweets db.Tweets
+	User   *User
+}
+
 //type Tweet struct {
 //	// will need to add id for author
 //	Id           int
@@ -70,59 +83,38 @@ func NewTweet(author, content string) *db.Tweet {
 //}
 
 func main() {
-	// will need to add env info
-	// will need to connect to mongodb
-
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Renderer = NewTemplate()
 	e.Static("/", "public")
 
-	//// test data
-	//data := Tweets{
-	//	NewTweet(
-	//		"Jack Dorsey",
-	//		"just setting up my twttr",
-	//		[]string{"Elon Musk"},
-	//		[]string{"Joe Biden"},
-	//		[]string{"Kanye West"},
-	//		time.Now(),
-	//	),
-	//	NewTweet(
-	//		"Britney Spears",
-	//		"Does anyone think global warming is a good thing?"+
-	//			"I love Lady Gaga. I think she's a really interesting artist.",
-	//		[]string{},
-	//		[]string{},
-	//		[]string{"Joe Biden", "Donald Trump", "Greta Thunberg"},
-	//		time.Date(2011, time.February, 1, 0, 0, 0, 0, time.UTC),
-	//	),
-	//	NewTweet(
-	//		"Kevin Durant",
-	//		"I'm watching the History channel in the club and I'm wondering"+
-	//			"how do these people kno what's goin on on the sun"+
-	//			"...ain't nobody ever been",
-	//		[]string{"Lebron James", "Steph Curry"},
-	//		[]string{"Kobe Bryant"},
-	//		[]string{"Barack Obama", "Lary Bird"},
-	//		time.Date(2010, time.July, 30, 0, 0, 0, 0, time.UTC),
-	//	),
-	//}
 	DB, err := db.NewDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var twts db.Tweets
+	var SessionData = Data{
+		Tweets: db.Tweets{},
+		User:   &User{},
+	}
+
+	DefaultUser := &User{
+		UserId:      6,
+		Name:        "Default User",
+		Email:       "dev@test.com",
+		Password:    "password",
+		CreatedDate: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+	}
+	SessionData.User = DefaultUser
 
 	e.GET("/", func(c echo.Context) error {
 		var err error
-		twts, err = DB.GetTweets()
-		log.Println("Tweets: ", twts)
+		SessionData.Tweets, err = DB.GetTweets()
+		log.Println("should be true: ", SessionData.Tweets[0].IsLiked(6))
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.Render(http.StatusOK, "index", twts)
+		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
 	e.GET("/new-post", func(c echo.Context) error {
@@ -130,7 +122,7 @@ func main() {
 	})
 	// new route to post new tweet and see it at the top of the feed
 	e.POST("/new-post", func(c echo.Context) error {
-		author := "Default User"
+		author := SessionData.User.Name
 		content := c.FormValue("tweet")
 		twt := NewTweet(author, content)
 		err := DB.CreateTweet(twt)
@@ -141,8 +133,8 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		twts = append(db.Tweets{twt}, twts...)
-		return c.Render(http.StatusOK, "home", twts)
+		SessionData.Tweets = append(db.Tweets{twt}, SessionData.Tweets...)
+		return c.Render(http.StatusOK, "home", SessionData)
 	})
 
 	e.DELETE("/delete/:id", func(c echo.Context) error {
@@ -150,7 +142,10 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		err = twts.DeleteTweet(id)
+		log.Println("Tweets: ", SessionData.Tweets)
+		SessionData.Tweets.DeleteTweet(id)
+		log.Println("Tweets: ", SessionData.Tweets)
+
 		if err != nil {
 			return c.JSON(http.StatusNotFound, err.Error())
 		}
@@ -164,8 +159,6 @@ func main() {
 
 	e.POST("/like/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
-		// get current user id
-		// just defaul user for now
 		var userId int
 		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
 		if err != nil {
@@ -175,13 +168,29 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.NoContent(200)
+		likedTweet := SessionData.Tweets.GetTweetById(id)
+		likedTweet.Likes++
+		return c.Render(200, "liked", likedTweet)
+	})
+
+	e.DELETE("/unlike/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.UnlikeTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		unlikedTweet := SessionData.Tweets.GetTweetById(id)
+		unlikedTweet.Likes--
+		return c.Render(200, "unliked", unlikedTweet)
 	})
 
 	e.POST("/interesting/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
-		// get current user id
-		// just default user for now
 		var userId int
 		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
 		if err != nil {

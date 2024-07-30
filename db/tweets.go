@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
+// This needs moved to handler
 type Tweet struct {
 	Id           int
+	AuthorId     int
 	Author       string
 	Content      string
 	Likes        int
@@ -19,6 +21,52 @@ type Tweet struct {
 
 func (t *Tweet) GetDate() string {
 	return t.PostDate.Format("January 2, 2006")
+}
+
+// IsLiked determines if the current user has liked the tweet
+func (t *Tweet) IsLiked(id int) bool {
+	// query likes for the tweet
+	// step through scanner and see if the value matches the SessionUser
+	// if it does return true
+	// if not the return false
+	db, _ := NewDB()
+
+	query := `
+	SELECT UserId FROM Likes Where TweetId = ?
+	`
+	rows, err := db.Query(query, t.Id)
+	if err != nil {
+		log.Printf("error getting likes: %v", err)
+	}
+	for rows.Next() {
+		var userId int
+		err = rows.Scan(&userId)
+		if err != nil {
+			log.Printf("error scanning likes: %v", err)
+		}
+		if userId == id {
+			return true
+		}
+	}
+	return false
+}
+
+// IsInteresting determines if the current user has marked the tweet as interesting
+func (t *Tweet) IsInteresting(id int) bool {
+	if t.AuthorId == id {
+		return true
+	} else {
+		return false
+	}
+}
+
+// IsFavorited determines if the current user has favorited the tweet
+func (t *Tweet) IsFavorited(id int) bool {
+	if t.AuthorId == id {
+		return true
+	} else {
+		return false
+	}
 }
 
 //func NewTweet(id int, author, content string, likes, favorites, interestings int, PostDate time.Time) *Tweet {
@@ -35,9 +83,18 @@ func (t *Tweet) GetDate() string {
 
 type Tweets []*Tweet
 
+func (t *Tweets) GetTweetById(id int) Tweet {
+	for _, t := range *t {
+		if t.Id == id {
+			return *t
+		}
+	}
+	return Tweet{}
+}
+
 func (db *DB) GetTweets() (Tweets, error) {
 	query := `
-	SELECT T.ID, T.Content, T.PostDate, U.Name
+	SELECT T.ID, T.Content, T.PostDate, U.Name, T.UserId
 	FROM Tweets T
 	INNER JOIN Users U ON T.UserId = U.Id
     `
@@ -48,7 +105,7 @@ func (db *DB) GetTweets() (Tweets, error) {
 	var tweets Tweets
 	for rows.Next() {
 		var tweet Tweet
-		err = rows.Scan(&tweet.Id, &tweet.Content, &tweet.PostDate, &tweet.Author)
+		err = rows.Scan(&tweet.Id, &tweet.Content, &tweet.PostDate, &tweet.Author, &tweet.AuthorId)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning tweets: %v", err)
 		}
@@ -116,7 +173,18 @@ func (db *DB) LikeTweet(tweetId, userId int) error {
 	`
 	_, err := db.Exec(query, tweetId, userId)
 	if err != nil {
-		return fmt.Errorf("error liking tweet: %v", err)
+		log.Printf("error liking tweet: %v", err)
+	}
+	return nil
+}
+
+func (db *DB) UnlikeTweet(tweetId, userId int) error {
+	query := `
+	DELETE FROM Likes WHERE TweetId = ? AND UserId = ?
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		log.Printf("error unliking tweet: %v", err)
 	}
 	return nil
 }
