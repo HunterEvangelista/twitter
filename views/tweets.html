@@ -22,21 +22,16 @@
             {{ else }}
                 {{ template "unliked" . }}
             {{ end }}
-            <div class="interesting tweet-footer-button">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     height="24px"
-                     viewBox="0 -960 960 960"
-                     width="24px" fill="#e8eaed">
-                    <path d="M480-120q-33 0-56.5-23.5T400-200q0-33 23.5-56.5T480-280q33 0 56.5 23.5T560-200q0 33-23.5 56.5T480-120Zm-80-240v-480h160v480H400Z"/></svg>
-            </div>
-            <div class="favorite tweet-footer-button">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     height="24px"
-                     viewBox="0 -960 960 960"
-                     width="24px"
-                     fill="#e8eaed">
-                    <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z"/></svg>
-            </div>
+            {{ if .IsInteresting 6 }}
+                {{ template "interesting" . }}
+            {{ else }}
+                {{ template "uninteresting" . }}
+            {{ end }}
+            {{ if .IsFavorited 6 }}
+                {{ template "favorited" . }}
+            {{ else }}
+                {{ template "unfavorited" . }}
+            {{ end }}
         </div>
             <div
                 hx-delete="/delete/{{ .Id }}"
@@ -78,5 +73,59 @@
              width="24px"
              fill="#e8eaed">
             <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"/></svg>
+    </div>
+{{ end }}
+
+{{ block "interesting" . }}
+    <div class="mark-interesting tweet-footer-button interesting"
+         hx-delete="/uninteresting/{{ .Id }}"
+         hx-swap="outerHTML"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg"
+             height="24px"
+             viewBox="0 -960 960 960"
+             width="24px" fill="#e8eaed">
+            <path d="M480-120q-33 0-56.5-23.5T400-200q0-33 23.5-56.5T480-280q33 0 56.5 23.5T560-200q0 33-23.5 56.5T480-120Zm-80-240v-480h160v480H400Z"/></svg>
+    </div>
+{{ end }}
+
+{{ block "uninteresting" . }}
+<div class="mark-interesting tweet-footer-button uninteresting"
+        hx-post="/interesting/{{ .Id }}"
+        hx-swap="outerHTML"
+>
+    <svg xmlns="http://www.w3.org/2000/svg"
+         height="24px"
+         viewBox="0 -960 960 960"
+         width="24px" fill="#e8eaed">
+        <path d="M480-120q-33 0-56.5-23.5T400-200q0-33 23.5-56.5T480-280q33 0 56.5 23.5T560-200q0 33-23.5 56.5T480-120Zm-80-240v-480h160v480H400Z"/></svg>
+</div>
+{{ end }}
+
+{{ block "favorited" . }}
+    <div class="favorite tweet-footer-button favorited"
+            hx-delete="/unfavorite/{{ .Id }}"
+            hx-swap="outerHTML"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg"
+             height="24px"
+             viewBox="0 -960 960 960"
+             width="24px"
+             fill="#e8eaed">
+            <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z"/></svg>
+    </div>
+{{ end }}
+
+{{ block "unfavorited" . }}
+    <div class="favorite tweet-footer-button unfavorited"
+            hx-post="/favorite/{{ .Id }}"
+            hx-swap="outerHTML"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg"
+             height="24px"
+             viewBox="0 -960 960 960"
+             width="24px"
+             fill="#e8eaed">
+            <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z"/></svg>
     </div>
 {{ end }}

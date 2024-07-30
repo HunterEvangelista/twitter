@@ -200,7 +200,25 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.NoContent(200)
+		interestingTweet := SessionData.Tweets.GetTweetById(id)
+		interestingTweet.Interestings++
+		return c.Render(200, "interesting", interestingTweet)
+	})
+
+	e.DELETE("/uninteresting/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.UninterestingTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		uninterestingTweet := SessionData.Tweets.GetTweetById(id)
+		uninterestingTweet.Interestings--
+		return c.Render(200, "uninteresting", uninterestingTweet)
 	})
 
 	e.POST("/favorite/:id", func(c echo.Context) error {
@@ -216,7 +234,25 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		return c.NoContent(200)
+		favoritedTweet := SessionData.Tweets.GetTweetById(id)
+		favoritedTweet.Favorites++
+		return c.Render(200, "favorited", favoritedTweet)
+	})
+
+	e.DELETE("/unfavorite/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		var userId int
+		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		err = DB.UnfavoriteTweet(id, userId)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		unfavoritedTweet := SessionData.Tweets.GetTweetById(id)
+		unfavoritedTweet.Favorites--
+		return c.Render(200, "unfavorited", unfavoritedTweet)
 	})
 
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {

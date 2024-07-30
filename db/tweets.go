@@ -25,10 +25,6 @@ func (t *Tweet) GetDate() string {
 
 // IsLiked determines if the current user has liked the tweet
 func (t *Tweet) IsLiked(id int) bool {
-	// query likes for the tweet
-	// step through scanner and see if the value matches the SessionUser
-	// if it does return true
-	// if not the return false
 	db, _ := NewDB()
 
 	query := `
@@ -53,20 +49,50 @@ func (t *Tweet) IsLiked(id int) bool {
 
 // IsInteresting determines if the current user has marked the tweet as interesting
 func (t *Tweet) IsInteresting(id int) bool {
-	if t.AuthorId == id {
-		return true
-	} else {
-		return false
+	db, _ := NewDB()
+
+	query := `
+	SELECT UserId FROM Interestings Where TweetId = ?
+	`
+	rows, err := db.Query(query, t.Id)
+	if err != nil {
+		log.Printf("error getting interestings: %v", err)
 	}
+	for rows.Next() {
+		var userId int
+		err = rows.Scan(&userId)
+		if err != nil {
+			log.Printf("error scanning interestings: %v", err)
+		}
+		if userId == id {
+			return true
+		}
+	}
+	return false
 }
 
 // IsFavorited determines if the current user has favorited the tweet
 func (t *Tweet) IsFavorited(id int) bool {
-	if t.AuthorId == id {
-		return true
-	} else {
-		return false
+	db, _ := NewDB()
+
+	query := `
+	SELECT UserId FROM Favorites Where TweetId = ?
+	`
+	rows, err := db.Query(query, t.Id)
+	if err != nil {
+		log.Printf("error getting favorites: %v", err)
 	}
+	for rows.Next() {
+		var userId int
+		err = rows.Scan(&userId)
+		if err != nil {
+			log.Printf("error scanning favorites: %v", err)
+		}
+		if userId == id {
+			return true
+		}
+	}
+	return false
 }
 
 //func NewTweet(id int, author, content string, likes, favorites, interestings int, PostDate time.Time) *Tweet {
@@ -201,6 +227,17 @@ func (db *DB) InterestingTweet(tweetId, userId int) error {
 	return nil
 }
 
+func (db *DB) UninterestingTweet(tweetId, userId int) error {
+	query := `
+	DELETE FROM Interestings WHERE TweetId = ? AND UserId = ?
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		return fmt.Errorf("error uninteresting tweet: %v", err)
+	}
+	return nil
+}
+
 func (db *DB) FavoriteTweet(tweetId, userId int) error {
 	query := `
 	INSERT INTO Favorites (TweetId, UserId)
@@ -209,6 +246,17 @@ func (db *DB) FavoriteTweet(tweetId, userId int) error {
 	_, err := db.Exec(query, tweetId, userId)
 	if err != nil {
 		return fmt.Errorf("error favoriting tweet: %v", err)
+	}
+	return nil
+}
+
+func (db *DB) UnfavoriteTweet(tweetId, userId int) error {
+	query := `
+	DELETE FROM Favorites WHERE TweetId = ? AND UserId = ?
+	`
+	_, err := db.Exec(query, tweetId, userId)
+	if err != nil {
+		return fmt.Errorf("error unfavoriting tweet: %v", err)
 	}
 	return nil
 }
