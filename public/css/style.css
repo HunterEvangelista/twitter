@@ -4,6 +4,7 @@
     --gray-blue: #37374a;
     --light-blue: #66aadd;
     --accent-orange: #ffa366;
+    --accent-green: #66ff66;
     --white: #ffffff;
 }
 
@@ -123,6 +124,10 @@ html, body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: .25rem;
+}
+
+.liked > svg, .interesting > svg, .favorited > svg {
+    fill: var(--accent-green);
 }
 
 .tweet-footer-button {
