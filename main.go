@@ -146,7 +146,7 @@ func main() {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
-		log.Println("GetDate: ", tweet.GetDate())
+		log.Println("GetDate: ", tweet.Likes)
 		return c.Render(http.StatusOK,
 			"expanded-tweet",
 			tweet)

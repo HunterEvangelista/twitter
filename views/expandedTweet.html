@@ -3,6 +3,9 @@
         <div id="tweet-{{ .Id }}"
              class="expanded-tweet"
              title="Double click to close"
+             hx-get="/"
+             hx-target="body"
+             hx-trigger="dblclick"
         >
             <div class="tweet-header">
                 <div class="tweet-author">
@@ -11,31 +14,37 @@
                     <span>{{ .Author }}</span>
                 </div>
                 <div class="tweet-date">
-{{/*                    <span>{{ .GetDate }}</span>*/}}
+                    <span>{{ .GetDate }}</span>
                 </div>
             </div>
             <div class="tweet-content">
                 <p>{{ .Content }}</p>
             </div>
             <div class="interactions">
-                {{ .Likes }}
-                {{ if .IsLiked }}
-                    {{ template "liked" . }}
-                {{ else }}
-                    {{ template "unliked" . }}
-                {{ end }}
-                {{ .Interestings }}
-                {{ if .IsInteresting }}
-                    {{ template "interesting" . }}
-                {{ else }}
-                    {{ template "uninteresting" . }}
-                {{ end }}
-                {{ .Favorites }}
-                {{ if .IsFavorited }}
-                    {{ template "favorited" . }}
-                {{ else }}
-                    {{ template "unfavorited" . }}
-                {{ end }}
+                <div>
+                    {{ .Likes }}
+                    {{ if .IsLiked 6 }}
+                        {{ template "liked" . }}
+                    {{ else }}
+                        {{ template "unliked" . }}
+                    {{ end }}
+                </div>
+                <div>
+                    {{ .Interestings  }}
+                    {{ if .IsInteresting 6 }}
+                        {{ template "interesting" . }}
+                    {{ else }}
+                        {{ template "uninteresting" . }}
+                    {{ end }}
+                </div>
+                <div>
+                    {{ .Favorites }}
+                    {{ if .IsFavorited 6 }}
+                        {{ template "favorited" . }}
+                    {{ else }}
+                        {{ template "unfavorited" . }}
+                    {{ end }}
+                </div>
             </div>
         </div>
     </div>

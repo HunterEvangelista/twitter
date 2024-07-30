@@ -123,7 +123,7 @@ func (t *Tweets) GetTweetById(id int) Tweet {
 	return Tweet{}
 }
 
-func (db *DB) GetTweet(id int) (Tweet, error) {
+func (db *DB) GetTweet(id int) (*Tweet, error) {
 	query := `
 	SELECT T.ID, T.Content, T.PostDate, U.Name, T.UserId
 	FROM Tweets T
@@ -133,9 +133,24 @@ func (db *DB) GetTweet(id int) (Tweet, error) {
 	var tweet Tweet
 	err := db.QueryRow(query, id).Scan(&tweet.Id, &tweet.Content, &tweet.PostDate, &tweet.Author, &tweet.AuthorId)
 	if err != nil {
-		return Tweet{}, fmt.Errorf("error getting tweet: %v", err)
+		return nil, fmt.Errorf("error getting tweet: %v", err)
 	}
-	return tweet, nil
+	// find likes, interestings, and favorites
+	likesQuery := `
+		SELECT COUNT(*) as likes FROM Likes WHERE TweetId = ?
+		`
+	err = db.QueryRow(likesQuery, tweet.Id).Scan(&tweet.Likes)
+
+	interestingsQuery := `
+        		SELECT COUNT(*) as interestings FROM Interestings WHERE TweetId = ?
+		`
+	err = db.QueryRow(interestingsQuery, tweet.Id).Scan(&tweet.Interestings)
+
+	favoritesQuery := `
+				SELECT COUNT(*) as favorites FROM Favorites WHERE TweetId = ?
+		`
+	err = db.QueryRow(favoritesQuery, tweet.Id).Scan(&tweet.Favorites)
+	return &tweet, nil
 }
 
 func (db *DB) GetTweets() (Tweets, error) {

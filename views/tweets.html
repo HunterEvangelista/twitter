@@ -60,6 +60,7 @@
     <div class="like tweet-footer-button liked"
             hx-delete="/unlike/{{ .Id }}"
             hx-swap="outerHTML"
+            hx-target="this"
             title="Unlike"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
@@ -75,6 +76,7 @@
     <div class="like tweet-footer-button unliked"
          hx-post="/like/{{ .Id }}"
          hx-swap="outerHTML"
+         hx-target="this"
          title="Like"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
@@ -90,6 +92,7 @@
     <div class="mark-interesting tweet-footer-button interesting"
          hx-delete="/uninteresting/{{ .Id }}"
          hx-swap="outerHTML"
+         hx-target="this"
          title="Unmark as interesting"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
@@ -104,6 +107,7 @@
 <div class="mark-interesting tweet-footer-button uninteresting"
         hx-post="/interesting/{{ .Id }}"
         hx-swap="outerHTML"
+        hx-target="this"
         title="Mark as interesting"
 >
     <svg xmlns="http://www.w3.org/2000/svg"
@@ -118,6 +122,7 @@
     <div class="favorite tweet-footer-button favorited"
             hx-delete="/unfavorite/{{ .Id }}"
             hx-swap="outerHTML"
+            hx-target="this"
             title="Unfavorite"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +138,8 @@
     <div class="favorite tweet-footer-button unfavorited"
             hx-post="/favorite/{{ .Id }}"
             hx-swap="outerHTML"
-             title="Favorite"
+            hx-target="this"
+            title="Favorite"
     >
         <svg xmlns="http://www.w3.org/2000/svg"
              height="24px"
@@ -143,3 +149,5 @@
             <path d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z"/></svg>
     </div>
 {{ end }}
+
+
