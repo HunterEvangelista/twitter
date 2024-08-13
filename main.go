@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"html/template"
 	"io"
 	"log"
@@ -11,6 +9,9 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Templates struct {
@@ -40,21 +41,6 @@ type Data struct {
 	User   *User
 }
 
-//type Tweet struct {
-//	// will need to add id for author
-//	Id           int
-//	Author       string
-//	Content      string
-//	Likes        []string
-//	Favorites    []string
-//	Interestings []string
-//	PostDate     time.Time
-//}
-//
-//func (t *Tweet) GetDate() string {
-//	return t.PostDate.Format("January 2, 2006")
-//}
-
 func NewTweet(author, content string) *db.Tweet {
 	return &db.Tweet{
 		Id:           0,
@@ -67,21 +53,6 @@ func NewTweet(author, content string) *db.Tweet {
 	}
 }
 
-//type Tweets []*Tweet
-//
-//func (t *Tweets) DeleteTweet(id int) error {
-//	for i, tweet := range *t {
-//		log.Println("Tweet id: ", tweet.Id)
-//		log.Println("Selected id: ", id)
-//		if tweet.Id == id {
-//			log.Println("Tweet found")
-//			*t = append((*t)[:i], (*t)[i+1:]...)
-//			return nil
-//		}
-//	}
-//	return errors.New("tweet not found")
-//}
-
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -93,7 +64,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var SessionData = Data{
+	SessionData := Data{
 		Tweets: db.Tweets{},
 		User:   &User{},
 	}
@@ -273,5 +244,4 @@ func main() {
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
-
 }
