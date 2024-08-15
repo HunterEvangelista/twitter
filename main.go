@@ -80,8 +80,6 @@ func main() {
 	SessionData.User = DefaultUser
 
 	e.GET("/", func(c echo.Context) error {
-		// need to check for a log in
-		// call read sessionH
 		var err error
 
 		response, _ := http.Get("http://localhost:8733/read-session")
@@ -92,9 +90,10 @@ func main() {
 			return err
 		}
 
+		// keeping conditional structure for now with test data present
+		// once default user data is removed it can be simplified
 		if SessionData.User.UserId == 0 {
-			// render the login page
-			return c.NoContent(200)
+			return c.Render(http.StatusOK, "index", SessionData)
 		} else {
 			SessionData.Tweets, err = DB.GetTweets()
 			if err != nil {
