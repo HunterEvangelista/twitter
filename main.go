@@ -29,19 +29,6 @@ func NewTemplate() *Templates {
 	}
 }
 
-/*
-* Game plan:
-* set up cookies, create a function that is called on each request that redirects to login
-* set up the authentication microservice, when a user logs in send the email and Password
-* to microservice which will create the session cookie, get the user id from the database and
-* store it under the userid key
-*
-* next we will set up new user registration service, the server will redirect to login, the user
-* login will have a sign up button
-* we have a form for all the info and sign up button
-*
-* final service will just be called when the user posts to check for profanity
- */
 type User struct {
 	CreatedDate time.Time
 	Name        string
@@ -104,15 +91,17 @@ func main() {
 		if err != nil {
 			return err
 		}
-		log.Println("Response: ", SessionData.User.UserId)
 
-		// if Userid is nil, then redirect to login
-
-		SessionData.Tweets, err = DB.GetTweets()
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
+		if SessionData.User.UserId == 0 {
+			// render the login page
+			return c.NoContent(200)
+		} else {
+			SessionData.Tweets, err = DB.GetTweets()
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, err.Error())
+			}
+			return c.Render(http.StatusOK, "index", SessionData)
 		}
-		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
 	e.GET("/new-post", func(c echo.Context) error {
