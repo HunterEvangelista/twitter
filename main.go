@@ -28,17 +28,30 @@ func NewTemplate() *Templates {
 	}
 }
 
+/*
+* Game plan:
+* set up cookies, create a function that is called on each request that redirects to login
+* set up the authentication microservice, when a user logs in send the email and Password
+* to microservice which will create the session cookie, get the user id from the database and
+* store it under the userid key
+*
+* next we will set up new user registration service, the server will redirect to login, the user
+* login will have a sign up button
+* we have a form for all the info and sign up button
+*
+* final service will just be called when the user posts to check for profanity
+ */
 type User struct {
-	UserId      int
+	CreatedDate time.Time
 	Name        string
 	Email       string
 	Password    string
-	CreatedDate time.Time
+	UserId      int
 }
 
 type Data struct {
-	Tweets db.Tweets
 	User   *User
+	Tweets db.Tweets
 }
 
 func NewTweet(author, content string) *db.Tweet {
@@ -79,6 +92,7 @@ func main() {
 	SessionData.User = DefaultUser
 
 	e.GET("/", func(c echo.Context) error {
+		// need to check for a log in
 		var err error
 		SessionData.Tweets, err = DB.GetTweets()
 		log.Println("should be true: ", SessionData.Tweets[0].IsLiked(6))
@@ -132,9 +146,6 @@ func main() {
 		SessionData.Tweets.DeleteTweet(id)
 		log.Println("Tweets: ", SessionData.Tweets)
 
-		if err != nil {
-			return c.JSON(http.StatusNotFound, err.Error())
-		}
 		err = DB.DeleteTweet(id)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -145,6 +156,9 @@ func main() {
 
 	e.POST("/like/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 		var userId int
 		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
 		if err != nil {
@@ -161,6 +175,10 @@ func main() {
 
 	e.DELETE("/unlike/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
 		var userId int
 		err = DB.QueryRow("SELECT Id FROM Users WHERE Name = ?", "Default User").Scan(&userId)
 		if err != nil {
