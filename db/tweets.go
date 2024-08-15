@@ -25,6 +25,7 @@ func (t *Tweet) GetDate() string {
 // IsLiked determines if the current user has liked the tweet
 func (t *Tweet) IsLiked(id int) bool {
 	db, _ := NewDB()
+	defer db.Close()
 
 	query := `
 	SELECT UserId FROM Likes Where TweetId = ?
