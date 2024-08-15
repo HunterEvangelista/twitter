@@ -93,9 +93,10 @@ func main() {
 
 	e.GET("/", func(c echo.Context) error {
 		// need to check for a log in
+		// call read sessionH
+
 		var err error
 		SessionData.Tweets, err = DB.GetTweets()
-		log.Println("should be true: ", SessionData.Tweets[0].IsLiked(6))
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
