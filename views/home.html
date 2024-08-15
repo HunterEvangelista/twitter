@@ -1,6 +1,0 @@
-{{ block "home" .}}
-<div id="page">
-    {{ template "header" . }}
-    <div id="content">{{ range .Tweets }} {{ template "tweets" . }} {{ end }}</div>
-</div>
-{{ end }}

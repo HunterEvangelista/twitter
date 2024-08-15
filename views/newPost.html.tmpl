@@ -1,0 +1,27 @@
+{{ block "new-post" .}}
+    <div id="page">
+        {{ template "new-post-header"}}
+        <div id="content">
+            <!-- need to add the tweet to memory
+            add the new tweet to the top of the dom
+            get back to the home page -->
+            <form class="new-tweet"
+                  hx-post="/new-post"
+                  hx-trigger="submit"
+                  hx-target="body"
+                  hx-swap="innerHTML"
+            ><label for="tweet"></label>
+                <textarea
+                        id="new-tweet"
+                        name="tweet"
+                        placeholder="Enter tweet here..."
+                        required
+                        autofocus
+                ></textarea>
+                <button
+                        type="submit"
+                >Post</button>
+            </form>
+        </div>
+    </div>
+{{ end }}
