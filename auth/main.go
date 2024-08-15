@@ -9,10 +9,6 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// looking to enable basic http auth
-// get email and password as form values
-// note that emails are guarenteed unique
-
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

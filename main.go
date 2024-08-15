@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
 	"io"
@@ -46,7 +47,7 @@ type User struct {
 	Name        string
 	Email       string
 	Password    string
-	UserId      int
+	UserId      int `json:"userId"`
 }
 
 type Data struct {
@@ -94,8 +95,19 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		// need to check for a log in
 		// call read sessionH
-
 		var err error
+
+		response, _ := http.Get("http://localhost:8733/read-session")
+
+		responseData, _ := io.ReadAll(response.Body)
+		err = json.Unmarshal(responseData, &SessionData.User)
+		if err != nil {
+			return err
+		}
+		log.Println("Response: ", SessionData.User.UserId)
+
+		// if Userid is nil, then redirect to login
+
 		SessionData.Tweets, err = DB.GetTweets()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, err.Error())
@@ -106,6 +118,7 @@ func main() {
 	e.GET("/new-post", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})
+
 	// new route to post new tweet and see it at the top of the feed
 	e.POST("/new-post", func(c echo.Context) error {
 		author := SessionData.User.Name
