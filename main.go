@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"html/template"
@@ -34,12 +35,24 @@ type User struct {
 	Name        string
 	Email       string
 	Password    string
-	UserId      int `json:"userId"`
+	UserId      int `json:"userId" form:"userId" query:"userId"`
+}
+
+type SignUpRequest struct {
+	Name              string `json:"name" form:"name" query:"name"`
+	Email             string `json:"email" form:"email" query:"email"`
+	Password          string `json:"password" form:"password" query:"password"`
+	ConfirmedPassword string `json:"confirmedPassword" form:"confirmedPassword" query:"confirmedPassword"`
+}
+
+type ResponseMsg struct {
+	Message string `json:"message"`
 }
 
 type Data struct {
-	User   *User
-	Tweets db.Tweets
+	User        *User
+	ResponseMsg *ResponseMsg
+	Tweets      db.Tweets
 }
 
 func NewTweet(author, content string) *db.Tweet {
@@ -66,18 +79,19 @@ func main() {
 	}
 
 	SessionData := Data{
-		Tweets: db.Tweets{},
-		User:   &User{},
+		Tweets:      db.Tweets{},
+		User:        &User{},
+		ResponseMsg: &ResponseMsg{},
 	}
 
-	DefaultUser := &User{
-		UserId:      6,
-		Name:        "Default User",
-		Email:       "dev@test.com",
-		Password:    "password",
-		CreatedDate: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-	}
-	SessionData.User = DefaultUser
+	// DefaultUser := &User{
+	// UserId:      6,
+	// Name:        "Default User",
+	// Email:       "dev@test.com",
+	// Password:    "password",
+	// CreatedDate: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+	// 	}
+	// SessionData.User = DefaultUser
 
 	e.GET("/", func(c echo.Context) error {
 		var err error
@@ -90,8 +104,6 @@ func main() {
 			return err
 		}
 
-		// keeping conditional structure for now with test data present
-		// once default user data is removed it can be simplified
 		if SessionData.User.UserId == 0 {
 			return c.Render(http.StatusOK, "index", SessionData)
 		} else {
@@ -107,6 +119,32 @@ func main() {
 		return c.Render(http.StatusOK, "signup", nil)
 	})
 
+	e.POST("/signup", func(c echo.Context) error {
+		var signupRequest SignUpRequest
+		c.Bind(&signupRequest)
+		log.Println(" signupRequest: ", signupRequest)
+		signupJson, err := json.Marshal(signupRequest)
+		body := bytes.NewReader(signupJson)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+		r, _ := http.NewRequest(http.MethodPost, "http://localhost:6883/signup", body)
+		r.Header.Add("Content-Type", "application/json")
+
+		response, err := http.DefaultClient.Do(r)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		// parse response json into struct
+		responseData, _ := io.ReadAll(response.Body)
+		err = json.Unmarshal(responseData, &SessionData.ResponseMsg)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(response.StatusCode, SessionData.ResponseMsg)
+	})
 	e.GET("/new-post", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})
