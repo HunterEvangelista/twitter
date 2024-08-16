@@ -230,6 +230,7 @@ body {
   width: 60%;
   border-radius: 5px;
   padding: 0.5rem;
+  color: var(--dark-blue);
 }
 
 .auth-footer {
