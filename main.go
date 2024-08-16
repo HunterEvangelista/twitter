@@ -244,6 +244,36 @@ func main() {
 		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
+	e.POST("/logout", func(c echo.Context) error {
+		// clear messages
+		SessionData.ResponseMsg = &ResponseMsg{}
+		// get cookie
+		r, _ := http.NewRequest(http.MethodPost, "http://localhost:8733/delete-session", nil)
+		cookie, _ := c.Cookie("session")
+		if cookie != nil {
+			log.Println("Cookie: ", cookie.Value)
+			log.Println("Cookie expirations: ", cookie.Expires)
+			r.AddCookie(cookie)
+		} else {
+			log.Println("No cookie")
+		}
+
+		resp, err := http.DefaultClient.Do(r)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			SessionData.User = &User{}
+			SessionData.User.UserId = 0
+			SessionData.ResponseMsg.Message = "Successfully logged out"
+			SessionData.Tweets = db.Tweets{}
+			return c.Render(http.StatusOK, "index", SessionData)
+		} else {
+			return c.JSON(http.StatusInternalServerError, "Error logging out")
+		}
+	})
+
 	e.GET("/new-post", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})

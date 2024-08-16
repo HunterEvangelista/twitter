@@ -69,7 +69,7 @@ func main() {
 		return c.JSON(http.StatusOK, userId)
 	})
 
-	e.GET("delete-session", func(c echo.Context) error {
+	e.POST("delete-session", func(c echo.Context) error {
 		sess, err := session.Get("session", c)
 		if err != nil {
 			return err
@@ -78,7 +78,7 @@ func main() {
 		if err := sess.Save(c.Request(), c.Response()); err != nil {
 			return err
 		}
-		return c.String(http.StatusOK, "Session deleted")
+		return c.NoContent(200)
 	})
 
 	if err := e.Start(":8733"); err != nil {
