@@ -46,12 +46,16 @@ type SignUpRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" form:"email" query:"email"`
+	Password string `json:"password" form:"password" query:"password"`
 }
 
 type ResponseMsg struct {
 	Message string `json:"message"`
+}
+
+type ReadSessionRequest struct {
+	Cookie http.Cookie `json:"cookie"`
 }
 
 type Data struct {
@@ -103,7 +107,20 @@ func main() {
 		SessionData.ResponseMsg = &ResponseMsg{}
 		var err error
 
-		response, _ := http.Get("http://localhost:8733/read-session")
+		r, _ := http.NewRequest(http.MethodGet, "http://localhost:8733/read-session", nil)
+		cookie, _ := c.Cookie("session")
+		if cookie != nil {
+			log.Println("Cookie: ", cookie.Value)
+			log.Println("Cookie expirations: ", cookie.Expires)
+			r.AddCookie(cookie)
+		} else {
+			log.Println("No cookie")
+		}
+
+		response, err := http.DefaultClient.Do(r)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 
 		responseData, _ := io.ReadAll(response.Body)
 		err = json.Unmarshal(responseData, &SessionData.User)
@@ -160,16 +177,71 @@ func main() {
 	e.POST("/login", func(c echo.Context) error {
 		// clear flash messages
 		SessionData.ResponseMsg = &ResponseMsg{}
+		log.Println("line 163")
 
 		// get login request, bind to struct
 		var loginRequest LoginRequest
 		c.Bind(&loginRequest)
+		log.Println("login request: ", loginRequest)
+		loginJson, err := json.Marshal(loginRequest)
+		if err != nil {
+			return err
+		}
+		body := bytes.NewReader(loginJson)
+
+		r, _ := http.NewRequest(http.MethodGet, "http://localhost:6883/authenticate", body)
+		r.Header.Add("Content-Type", "application/json")
+
+		response, err := http.DefaultClient.Do(r)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
 		// check with auth service if valid
-		// if valid create session and get user info
-		// render home page
+		if response.StatusCode == http.StatusOK {
+			// create session
+			// get user id
+			query := `
+      SELECT Id FROM Users WHERE Email = ?
+    `
+			DB.QueryRow(query, loginRequest.Email).Scan(&SessionData.User.UserId)
+			// create session with user id
+			log.Println("User ID: ", SessionData.User.UserId)
+			reqJson, _ := json.Marshal(SessionData.User)
+			body := bytes.NewReader(reqJson)
+			r, _ := http.NewRequest(http.MethodPost, "http://localhost:8733/create-session", body)
+			r.Header.Add("Content-Type", "application/json")
+
+			resp, err := http.DefaultClient.Do(r)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, err.Error())
+			}
+			if resp.StatusCode != http.StatusOK {
+				return c.JSON(http.StatusInternalServerError, "Error creating session")
+			}
+			// get cookie from response and store it
+			c.SetCookie(resp.Cookies()[0])
+			// flash error message
+		} else {
+			responseData, _ := io.ReadAll(response.Body)
+			err = json.Unmarshal(responseData, &SessionData.ResponseMsg)
+			if err != nil {
+				return err
+			}
+			return c.Render(http.StatusOK, "login", SessionData)
+		}
+		// get user information
+		query := `
+    SELECT Name, Email, CreatedDate FROM Users WHERE Id = ?
+    `
+
+		err = DB.QueryRow(query, SessionData.User.UserId).Scan(&SessionData.User.Name, &SessionData.User.Email, &SessionData.User.CreatedDate)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 
 		// if not valid, rerender login with error message
-		return c.NoContent(200)
+		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
 	e.GET("/new-post", func(c echo.Context) error {
