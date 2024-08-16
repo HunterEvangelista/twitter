@@ -1,0 +1,102 @@
+{{ block "login" . }}
+<div id="auth-page">
+  <form
+    id="login"
+    class="login"
+    hx-post="/login"
+    hx-target="body"
+    hx-trigger="submit"
+    hx-swap="innerHTML"
+  >
+    <h1>Login</h1>
+    {{ template "flash" .}}
+    <label for="email">
+      Email:<br />
+      <input name="email" type="email" placeholder="Email" required />
+    </label>
+    <label for="password">
+      Password:<br />
+      <input name="password" type="password" placeholder="Password" required />
+    </label>
+    <input
+      type="submit"
+      value="Login"
+      type="submit"
+      class="btn"
+      id="login-btn"
+    />
+  </form>
+  <div class="auth-footer">
+    <span
+      >Not a member?
+      <a
+        hx-get="/signup"
+        hx-trigger="click"
+        hx-target="#auth-page"
+        hx-swap="outerHTML"
+        href="/signup"
+        >Sign Up!</a
+      ></span
+    >
+  </div>
+</div>
+{{ end }} {{ block "signup" . }}
+<div id="auth-page">
+  <form
+    id="signup"
+    class="signup"
+    hx-post="/signup"
+    hx-target="#auth-page"
+    hx-trigger="submit"
+    hx-swap="outerHTML"
+  >
+    <h1>Sign Up</h1>
+    {{ template "flash" .}}
+    <label for="name">
+      Name:<br />
+      <input name="name" type="text" placeholder="Name" required />
+    </label>
+    <label for="email">
+      Email:<br />
+      <input name="email" type="email" placeholder="Email" required />
+    </label>
+    <label for="password">
+      Password:<br />
+      <input name="password" type="password" placeholder="Password" required />
+    </label>
+    <label for="confirmedPassword">
+      Confirm Password:<br />
+      <input
+        name="confirmedPassword"
+        type="password"
+        placeholder="Confirm Password"
+        required
+      />
+    </label>
+    <input
+      type="submit"
+      value="Sign Up"
+      type="submit"
+      class="btn"
+      id="signup-btn"
+    />
+  </form>
+  <div class="auth-footer">
+    <span
+      >Already a member?
+      <a
+        hx-get="/"
+        hx-trigger="click"
+        hx-target="body"
+        hx-swap="innerHTML"
+        href="/"
+        >Login!</a
+      ></span
+    >
+  </div>
+</div>
+{{ end }} {{ block "flash" .}} {{ if .ResponseMsg.Message }}
+<div id="flash">
+  <span>{{ .ResponseMsg.Message }}</span>
+</div>
+{{ end }} {{ end }}

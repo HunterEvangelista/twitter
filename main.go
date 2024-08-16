@@ -45,6 +45,11 @@ type SignUpRequest struct {
 	ConfirmedPassword string `json:"confirmedPassword" form:"confirmedPassword" query:"confirmedPassword"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type ResponseMsg struct {
 	Message string `json:"message"`
 }
@@ -94,6 +99,8 @@ func main() {
 	// SessionData.User = DefaultUser
 
 	e.GET("/", func(c echo.Context) error {
+		// clear flash messages
+		SessionData.ResponseMsg = &ResponseMsg{}
 		var err error
 
 		response, _ := http.Get("http://localhost:8733/read-session")
@@ -143,8 +150,26 @@ func main() {
 			return err
 		}
 
-		return c.JSON(response.StatusCode, SessionData.ResponseMsg)
+		if response.StatusCode == http.StatusOK {
+			return c.Render(response.StatusCode, "login", SessionData)
+		} else {
+			return c.Render(http.StatusOK, "signup", SessionData)
+		}
 	})
+
+	e.POST("/login", func(c echo.Context) error {
+		// clear flash messages
+		SessionData.ResponseMsg = &ResponseMsg{}
+
+		// get login request, bind to struct
+		// check with auth service if valid
+		// if valid create session and get user info
+		// render home page
+
+		// if not valid, rerender login with error message
+		return c.NoContent(200)
+	})
+
 	e.GET("/new-post", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})
