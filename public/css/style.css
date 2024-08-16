@@ -1,185 +1,278 @@
 /*Style variables*/
 :root {
-    --dark-blue: #1a1a2e;
-    --gray-blue: #37374a;
-    --light-blue: #66aadd;
-    --accent-orange: #ffa366;
-    --accent-green: #66ff66;
-    --white: #ffffff;
+  --dark-blue: #1a1a2e;
+  --gray-blue: #37374a;
+  --light-blue: #66aadd;
+  --accent-orange: #ffa366;
+  --accent-green: #66ff66;
+  --white: #ffffff;
 }
 
 /* general style */
 * {
-    font-family: "Fira Sans", sans-serif;
-    background-color: var(--dark-blue);
-    color: var(--white);
+  font-family: "Fira Sans", sans-serif;
+  background-color: var(--dark-blue);
+  color: var(--white);
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 #page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 99%;
-    align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 99%;
+  align-self: center;
 }
 
 .header {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-    align-self: center;
-    width: 98%;
-    height: 7.5%;
-    padding: 1.5rem;
-    background-color: var(--gray-blue);
-    font-size: 2rem;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: center;
+  width: 98%;
+  height: 7.5%;
+  padding: 1.5rem;
+  background-color: var(--gray-blue);
+  font-size: 2rem;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .header > span {
-    background-color: var(--gray-blue);
+  background-color: var(--gray-blue);
 }
 
 .header > button {
-    background-color: var(--light-blue);
-    color: var(--white);
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    height: 3rem;
-    width: 9rem;
-    border-radius: 15px;
+  background-color: var(--light-blue);
+  color: var(--white);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  height: 3rem;
+  width: 9rem;
+  border-radius: 15px;
 }
 
 #content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    height: 100%;
-    width: 66%;
-    background-color: var(--gray-blue);
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: .25rem;
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  width: 66%;
+  background-color: var(--gray-blue);
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.25rem;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
 }
 
 /*home page*/
 
 .interactions > div {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: baseline;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: baseline;
 }
 
-.tweet, .expanded-tweet {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 10rem;
-    width: 90%;
-    margin-top: 20px;
-    border-radius: 10px;
-    padding: 20px 20px 10px;
+.tweet,
+.expanded-tweet {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 10rem;
+  width: 90%;
+  margin-top: 20px;
+  border-radius: 10px;
+  padding: 20px 20px 10px;
 }
 
 .tweet-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .tweet-content {
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--white);
-    height: 50%;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--white);
+  height: 50%;
 }
 
 .tweet-footer {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: .25rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
 }
 
 .interactions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: .25rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
 }
 
-.liked > svg, .interesting > svg, .favorited > svg {
-    fill: var(--accent-green);
+.liked > svg,
+.interesting > svg,
+.favorited > svg {
+  fill: var(--accent-green);
 }
 
 .tweet-footer-button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 /*new tweet form*/
 #cancel-button {
-    background-color: var(--accent-orange);
-    color: var(--white);
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    height: 3rem;
-    width: 3rem;
-    border-radius: 50%;
-    margin-top: .25rem;
+  background-color: var(--accent-orange);
+  color: var(--white);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 50%;
+  margin-top: 0.25rem;
 }
 .new-tweet {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 50%;
-    width: 90%;
-    margin-top: .25rem;
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
-    background-color: var(--gray-blue);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50%;
+  width: 90%;
+  margin-top: 0.25rem;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  background-color: var(--gray-blue);
 }
 
 .new-tweet > textarea {
-    height: 100%;
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 1.5rem;
-    resize: none;
-    margin: .25rem auto;
-    background-color: var(--white);
-    color: black;
+  height: 100%;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1.5rem;
+  resize: none;
+  margin: 0.25rem auto;
+  background-color: var(--white);
+  color: black;
 }
 
 .new-tweet > button {
-    background-color: var(--light-blue);
-    color: var(--white);
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    height: 3rem;
-    width: 9rem;
-    border-radius: 15px;
-    margin-top: .25rem;
-    margin-left: auto;
+  background-color: var(--light-blue);
+  color: var(--white);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  height: 3rem;
+  width: 9rem;
+  border-radius: 15px;
+  margin-top: 0.25rem;
+  margin-left: auto;
+}
+
+/*Login & Signup*/
+#auth-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60%;
+  width: 50%;
+  padding: 2rem;
+  background-color: var(--white);
+  color: var(--dark-blue);
+  border-radius: 10px;
+  box-shadow: var(--light-blue) -5px 5px;
+}
+
+#auth-page > form {
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  width: 100%;
+  margin: 0.5rem;
+  color: var(--dark-blue);
+  background-color: var(--white);
+  border-bottom: 1px solid var(--dark-blue);
+}
+
+#auth-page > form > * {
+  margin: 0.5rem;
+  color: var(--dark-blue);
+  background-color: var(--white);
+}
+
+#auth-page > form > label {
+  font-weight: bold;
+}
+
+#auth-page > form > label > input {
+  border: none;
+  background-color: var(--white);
+  border: 2px solid var(--dark-blue);
+  width: 60%;
+  border-radius: 5px;
+  padding: 0.5rem;
+}
+
+.auth-footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--white);
+  color: var(--dark-blue);
+}
+
+.auth-footer > span {
+  color: var(--dark-blue);
+  background-color: var(--white);
+  align-self: center;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.auth-footer > span > a {
+  color: var(--dark-blue);
+  background-color: var(--white);
+  font-weight: bold;
+}
+
+input[type="submit"] {
+  background-color: var(--light-blue);
+  color: var(--white);
+  border: 2px solid var(--dark-blue);
+  font-size: 1.5rem;
+  cursor: pointer;
+  height: 3rem;
+  width: 9rem;
+  border-radius: 15px;
+  font-weight: bold;
+  align-self: stretch;
+}
+
+#login-btn:hover,
+#signup-btn:hover {
+  background-color: var(--accent-green);
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }

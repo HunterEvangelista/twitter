@@ -103,6 +103,10 @@ func main() {
 		}
 	})
 
+	e.GET("/signup", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "signup", nil)
+	})
+
 	e.GET("/new-post", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "new-post", nil)
 	})
