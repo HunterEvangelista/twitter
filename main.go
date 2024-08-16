@@ -162,6 +162,8 @@ func main() {
 		SessionData.ResponseMsg = &ResponseMsg{}
 
 		// get login request, bind to struct
+		var loginRequest LoginRequest
+		c.Bind(&loginRequest)
 		// check with auth service if valid
 		// if valid create session and get user info
 		// render home page
