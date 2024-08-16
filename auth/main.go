@@ -111,7 +111,7 @@ func main() {
 
 		log.Println("User created")
 
-		return c.JSON(200, ResponseMessage{Message: "Account Created"})
+		return c.JSON(200, ResponseMessage{Message: "Account Created, please login."})
 	})
 
 	if err := e.Start(":6883"); err != nil {

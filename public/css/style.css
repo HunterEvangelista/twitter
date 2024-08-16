@@ -194,7 +194,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 60%;
-  width: 50%;
+  width: 40%;
   padding: 2rem;
   background-color: var(--white);
   color: var(--dark-blue);
@@ -276,4 +276,16 @@ input[type="submit"] {
   box-shadow:
     rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+#flash > span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  background-color: var(--accent-orange);
+  color: var(--dark-blue);
+  border-radius: 10px;
+  padding: 0.5rem;
 }

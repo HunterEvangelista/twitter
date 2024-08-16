@@ -1,0 +1,10 @@
+{{ block "home" .}}
+<div id="page">
+  {{ if eq .User.UserId 0 }} {{ template "login" . }} {{ else}} {{ template
+  "header" . }}
+  <div id="content">
+    {{ range .Tweets }} {{ template "tweets" . }} {{ end }}
+  </div>
+  {{ end }}
+</div>
+{{ end }}
