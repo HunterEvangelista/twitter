@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -14,7 +13,7 @@ import (
 )
 
 type SessionUserId struct {
-	ID int `json:"userId"`
+	ID int `json:"userId" form:"userId" query:"userId"`
 }
 
 func main() {
@@ -26,7 +25,7 @@ func main() {
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	e.Use(session.Middleware(store), middleware.Logger())
 
-	e.GET(
+	e.POST(
 		"/create-session",
 		func(c echo.Context) error {
 			sess, err := store.Get(c.Request(), "session")
@@ -34,8 +33,11 @@ func main() {
 				log.Println("Error getting session")
 				return err
 			}
-
-			sess.Values["UserId"] = c.FormValue("userId")
+			var sessionUserId SessionUserId
+			c.Bind(&sessionUserId)
+			log.Println("User Id: ", sessionUserId.ID)
+			sess.Values["UserId"] = sessionUserId.ID
+			log.Println("User Id: ", sess.Values["UserId"])
 			if err := sess.Save(c.Request(), c.Response()); err != nil {
 				log.Println("Error Saving session")
 				return err
@@ -44,19 +46,25 @@ func main() {
 		})
 
 	e.GET("/read-session", func(c echo.Context) error {
+		cookie, _ := c.Cookie("session")
+		if cookie != nil {
+			log.Println("Cookie: ", cookie)
+		} else {
+			log.Println("No Cookie")
+		}
 		sess, err := session.Get("session", c)
+		log.Println("Session Values: ", sess.Values)
 		if err != nil {
 			return err
 		}
 		// access the session value
-		sessId, ok := sess.Values["UserId"].(string)
-		var sessIdInt int
+		sessId, ok := sess.Values["UserId"].(int)
+
 		if !ok {
-			sessIdInt = 0
-		} else {
-			sessIdInt, _ = strconv.Atoi(sessId)
+			sessId = 0
 		}
-		userId := &SessionUserId{ID: sessIdInt}
+
+		userId := &SessionUserId{ID: sessId}
 		log.Println("Session ID: ", userId.ID)
 		return c.JSON(http.StatusOK, userId)
 	})
