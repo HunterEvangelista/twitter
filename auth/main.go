@@ -65,13 +65,13 @@ func main() {
 		var password string
 		err := db.QueryRow(query, loginRequest.Email).Scan(&password)
 		if err != nil {
-			return c.String(404, "Email not found")
+			return c.JSON(404, ResponseMessage{Message: "Email not found"})
 		}
 
 		if password != loginRequest.Password {
-			return c.String(401, "Incorrect password")
+			return c.JSON(401, ResponseMessage{Message: "Incorrect password"})
 		} else {
-			return c.String(200, "Authorized")
+			return c.NoContent(200)
 		}
 	})
 
