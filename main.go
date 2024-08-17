@@ -93,15 +93,6 @@ func main() {
 		ResponseMsg: &ResponseMsg{},
 	}
 
-	// DefaultUser := &User{
-	// UserId:      6,
-	// Name:        "Default User",
-	// Email:       "dev@test.com",
-	// Password:    "password",
-	// CreatedDate: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
-	// 	}
-	// SessionData.User = DefaultUser
-
 	e.GET("/", func(c echo.Context) error {
 		// clear flash messages
 		SessionData.ResponseMsg = &ResponseMsg{}
@@ -130,13 +121,12 @@ func main() {
 
 		if SessionData.User.UserId == 0 {
 			return c.Render(http.StatusOK, "index", SessionData)
-		} else {
-			SessionData.Tweets, err = DB.GetTweets()
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, err.Error())
-			}
-			return c.Render(http.StatusOK, "index", SessionData)
 		}
+
+		log.Println("Session Before call: ", SessionData.User)
+		BuildHomePage(&SessionData, DB)
+		log.Println("Session After call: ", SessionData.User)
+		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
 	e.GET("/signup", func(c echo.Context) error {
@@ -168,7 +158,6 @@ func main() {
 		}
 
 		if response.StatusCode == http.StatusOK {
-			// Default new user to follow everyone
 			AssignFollowers(signupRequest.Email, DB)
 			return c.Render(response.StatusCode, "login", SessionData)
 		} else {
@@ -223,6 +212,7 @@ func main() {
 			}
 			// get cookie from response and store it
 			c.SetCookie(resp.Cookies()[0])
+
 			// flash error message
 		} else {
 			responseData, _ := io.ReadAll(response.Body)
@@ -242,7 +232,8 @@ func main() {
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
 
-		// if not valid, rerender login with error message
+		BuildHomePage(&SessionData, DB)
+
 		return c.Render(http.StatusOK, "index", SessionData)
 	})
 
@@ -253,13 +244,9 @@ func main() {
 		r, _ := http.NewRequest(http.MethodPost, "http://localhost:8733/delete-session", nil)
 		cookie, _ := c.Cookie("session")
 		if cookie != nil {
-			log.Println("Cookie: ", cookie.Value)
-			log.Println("Cookie expirations: ", cookie.Expires)
 			r.AddCookie(cookie)
 			cookie.Expires = time.Now().Add(-5 * time.Second)
 			c.SetCookie(cookie)
-		} else {
-			log.Println("No cookie")
 		}
 
 		resp, err := http.DefaultClient.Do(r)
@@ -284,8 +271,16 @@ func main() {
 
 	// new route to post new tweet and see it at the top of the feed
 	e.POST("/new-post", func(c echo.Context) error {
+		// clear flash messages
+		SessionData.ResponseMsg = &ResponseMsg{}
 		author := SessionData.User.Name
 		content := c.FormValue("tweet")
+		// check for profanity
+		res := HandleProfanityCheck(content)
+		if res != "" {
+			SessionData.ResponseMsg.Message = res
+			return c.Render(http.StatusOK, "new-post", SessionData)
+		}
 		twt := NewTweet(author, content)
 		err := DB.CreateTweet(twt)
 		if err != nil {
@@ -468,6 +463,57 @@ func AssignFollowers(email string, db *db.DB) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func GetSessionUserInfo(userId int, db *db.DB) (*User, error) {
+	var user User
+	err := db.QueryRow("SELECT Name, Email, CreatedDate FROM Users WHERE Id = ?", userId).Scan(&user.Name, &user.Email, &user.CreatedDate)
+	if err != nil {
+		return nil, err
+	}
+	// add call to user info service
+	userIdStr := strconv.Itoa(userId)
+	http.NewRequest(http.MethodGet, "http://localhost:6050/get-user-info/"+userIdStr, nil)
+
+	user.UserId = userId
+	return &user, nil
+}
+
+type ProfanityResp struct {
+	Profane string `json:"profane" form:"profane" query:"profane"`
+}
+
+func HandleProfanityCheck(content string) string {
+	req := make(map[string]string)
+	req["tweet"] = content
+	log.Println("Content: ", content)
+	body, _ := json.Marshal(req)
+	reqBody := bytes.NewReader(body)
+	r, _ := http.NewRequest(http.MethodGet, "http://localhost:6990/check", reqBody)
+	r.Header.Add("Content-Type", "application/json")
+	resp, _ := http.DefaultClient.Do(r)
+	responseData, _ := io.ReadAll(resp.Body)
+
+	var result ProfanityResp
+	err := json.Unmarshal(responseData, &result)
+	log.Println(err)
+	if err != nil {
+		return "Error parsing response"
+	}
+	if result.Profane == "1" {
+		return "Profanity detected"
+	}
+	return ""
+}
+
+func BuildHomePage(sessionData *Data, db *db.DB) error {
+	var err error
+	sessionData.User, _ = GetSessionUserInfo(sessionData.User.UserId, db)
+	sessionData.Tweets, err = db.GetTweetsByFollowing(sessionData.User.UserId)
+	if err != nil {
+		return err
 	}
 	return nil
 }
