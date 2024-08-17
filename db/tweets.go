@@ -196,7 +196,7 @@ func (db *DB) GetTweetsByFollowing(userId int) (Tweets, error) {
   SELECT T.ID, T.Content, T.PostDate, U.Name, T.UserId
   FROM Tweets T
   INNER JOIN Users U ON T.UserId = U.Id
-  WHERE T.UserId IN (SELECT FollowingId FROM Follows WHERE UserId = ?)
+  WHERE T.UserId IN (SELECT FolloweeId FROM Follows WHERE FollowerId = ?)
     `
 	rows, err := db.Query(query, userId)
 	if err != nil {
