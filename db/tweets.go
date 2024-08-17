@@ -191,6 +191,42 @@ func (db *DB) GetTweets() (Tweets, error) {
 	return tweets, nil
 }
 
+func (db *DB) GetTweetsByFollowing(userId int) (Tweets, error) {
+	query := `
+  SELECT T.ID, T.Content, T.PostDate, U.Name, T.UserId
+  FROM Tweets T
+  INNER JOIN Users U ON T.UserId = U.Id
+  WHERE T.UserId IN (SELECT FollowingId FROM Follows WHERE UserId = ?)
+    `
+	rows, err := db.Query(query, userId)
+	if err != nil {
+		return nil, fmt.Errorf("error getting tweets: %v", err)
+	}
+	var tweets Tweets
+	for rows.Next() {
+		var tweet Tweet
+		err = rows.Scan(&tweet.Id, &tweet.Content, &tweet.PostDate, &tweet.Author, &tweet.AuthorId)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning tweets: %v", err)
+		}
+		// find likes, interestings, and favorites
+		likesQuery := `
+    SELECT COUNT(*) as likes FROM Likes WHERE TweetId = ?
+    `
+		err = db.QueryRow(likesQuery, tweet.Id).Scan(&tweet.Likes)
+		interestingsQuery := `
+        		SELECT COUNT(*) as interestings FROM Interestings WHERE TweetId = ?
+    `
+		err = db.QueryRow(interestingsQuery, tweet.Id).Scan(&tweet.Interestings)
+		favoritesQuery := `
+        SELECT COUNT(*) as favorites FROM Favorites WHERE TweetId = ?
+    `
+		err = db.QueryRow(favoritesQuery, tweet.Id).Scan(&tweet.Favorites)
+		tweets = append(tweets, &tweet)
+	}
+	return tweets, nil
+}
+
 func (db *DB) CreateTweet(tweet *Tweet) error {
 	query := `
 	INSERT INTO Tweets (Content, PostDate, UserId)

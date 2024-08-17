@@ -168,6 +168,8 @@ func main() {
 		}
 
 		if response.StatusCode == http.StatusOK {
+			// Default new user to follow everyone
+			AssignFollowers(signupRequest.Email, DB)
 			return c.Render(response.StatusCode, "login", SessionData)
 		} else {
 			return c.Render(http.StatusOK, "signup", SessionData)
@@ -254,6 +256,8 @@ func main() {
 			log.Println("Cookie: ", cookie.Value)
 			log.Println("Cookie expirations: ", cookie.Expires)
 			r.AddCookie(cookie)
+			cookie.Expires = time.Now().Add(-5 * time.Second)
+			c.SetCookie(cookie)
 		} else {
 			log.Println("No cookie")
 		}
@@ -435,4 +439,35 @@ func main() {
 	if err := e.Start(":9000"); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
+}
+
+func AssignFollowers(email string, db *db.DB) error {
+	var newUserId int
+	err := db.QueryRow("SELECT Id FROM Users WHERE Email = ?", email).Scan(&newUserId)
+	if err != nil {
+		return err
+	}
+	var userIds []int
+	rows, err := db.Query("SELECT DISTINCT Id FROM Users WHERE Id != ?", newUserId)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var userId int
+		err = rows.Scan(&userId)
+		if err != nil {
+			return err
+		}
+		userIds = append(userIds, userId)
+	}
+
+	// insert follow relationship
+	for _, userId := range userIds {
+		_, err = db.Exec("INSERT INTO Follows (FollowerId, FolloweeId) VALUES (?, ?)", newUserId, userId)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
